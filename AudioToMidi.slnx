@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/AudioToMidi.App/AudioToMidi.App.csproj" />
+    <Project Path="src/AudioToMidi.Cli/AudioToMidi.Cli.csproj" />
+    <Project Path="src/AudioToMidi.Core/AudioToMidi.Core.csproj" />
+    <Project Path="src/AudioToMidi.Model/AudioToMidi.Model.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AudioToMidi.Tests/AudioToMidi.Tests.csproj" />
+  </Folder>
+</Solution>

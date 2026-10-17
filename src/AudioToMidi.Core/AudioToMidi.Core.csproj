@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AudioToMidi.Model\AudioToMidi.Model.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.36.2" />
+    <PackageReference Include="Grpc.Tools" Version="2.84.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Melanchall.DryWetMidi" Version="8.0.3" />
+    <!-- SoundFont playback (MIT), and Ogg Vorbis decoding (MIT) for .sf3 SoundFonts. -->
+    <PackageReference Include="MeltySynth" Version="2.4.1" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" />
+    <PackageReference Include="NVorbis" Version="0.10.5" />
+    <PackageReference Include="NWaves" Version="0.9.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- ONNX model schema (Apache-2.0, onnx/onnx v1.17.0), used to rewrite graphs for CoreML. -->
+    <Protobuf Include="Separation\Onnx\onnx.proto" GrpcServices="None" Access="Internal" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Spotify basic-pitch ICASSP 2022 model, embedded so the app ships as a single file. -->
+    <EmbeddedResource Include="..\..\models\nmp.onnx" LogicalName="AudioToMidi.Core.nmp.onnx" />
+    <!-- Google YAMNet (Apache-2.0), ONNX export by andrelgomes/yamnet-onnx, and its AudioSet class names. -->
+    <EmbeddedResource Include="..\..\models\yamnet.onnx" LogicalName="AudioToMidi.Core.yamnet.onnx" />
+    <EmbeddedResource Include="..\..\models\yamnet_class_map.csv" LogicalName="AudioToMidi.Core.yamnet_class_map.csv" />
+    <!-- Instrument classifier weights (optional). -->
+    <EmbeddedResource Include="Instruments\instrument_head.json" LogicalName="AudioToMidi.Core.instrument_head.json" Condition="Exists('Instruments\instrument_head.json')" />
+  </ItemGroup>
+
+</Project>

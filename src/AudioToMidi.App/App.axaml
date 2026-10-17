@@ -1,0 +1,458 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:AudioToMidi.App.Controls"
+             x:Class="AudioToMidi.App.App"
+             RequestedThemeVariant="Dark">
+
+  <!-- The soundboard look: a dark and a light palette, then styles that use them. The display (piano roll)
+       and LED readouts stay dark in both, like the screens on hardware. -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <FontFamily x:Key="SbLabelFont">Avenir Next Condensed, Bahnschrift SemiCondensed, DIN Condensed, Arial Narrow, sans-serif</FontFamily>
+      <FontFamily x:Key="SbMonoFont">SF Mono, Menlo, Consolas, monospace</FontFamily>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="SbApp" Color="#18191b" />
+          <SolidColorBrush x:Key="SbChassis" Color="#26272a" />
+          <SolidColorBrush x:Key="SbChassisBorder" Color="#38393d" />
+          <SolidColorBrush x:Key="SbGroup" Color="#2e2f33" />
+          <SolidColorBrush x:Key="SbGroupBorder" Color="#3c3d42" />
+          <SolidColorBrush x:Key="SbTab" Color="#3c3d42" />
+          <SolidColorBrush x:Key="SbTabText" Color="#e6e0d2" />
+          <SolidColorBrush x:Key="SbLabel" Color="#a9a395" />
+          <SolidColorBrush x:Key="SbValue" Color="#e8e2d4" />
+          <SolidColorBrush x:Key="SbText" Color="#d8d3c6" />
+          <SolidColorBrush x:Key="SbMuted" Color="#8a857a" />
+          <Color x:Key="SbKnobHi">#efe9db</Color>
+          <Color x:Key="SbKnobMid">#bfb7a7</Color>
+          <Color x:Key="SbKnobLo">#7c7566</Color>
+          <SolidColorBrush x:Key="SbKnobRim" Color="#18191b" />
+          <SolidColorBrush x:Key="SbPointer" Color="#2b2c2f" />
+          <SolidColorBrush x:Key="SbArcTrack" Color="#46474c" />
+          <SolidColorBrush x:Key="SbAccent" Color="#4fd18b" />
+          <SolidColorBrush x:Key="SbLedGreen" Color="#46d27c" />
+          <SolidColorBrush x:Key="SbLedAmber" Color="#f2b440" />
+          <SolidColorBrush x:Key="SbLedRed" Color="#ff5545" />
+          <SolidColorBrush x:Key="SbLedOff" Color="#3b3c40" />
+          <SolidColorBrush x:Key="SbBtn" Color="#313236" />
+          <SolidColorBrush x:Key="SbBtnHover" Color="#393a3f" />
+          <SolidColorBrush x:Key="SbBtnBorder" Color="#4a4b50" />
+          <SolidColorBrush x:Key="SbBtnText" Color="#d5d0c3" />
+          <SolidColorBrush x:Key="SbBtnOnBg" Color="#1d4a2d" />
+          <SolidColorBrush x:Key="SbBtnOnBorder" Color="#3fbf6f" />
+          <SolidColorBrush x:Key="SbBtnOnText" Color="#77f2a6" />
+          <SolidColorBrush x:Key="SbSegBg" Color="#2a2b2f" />
+          <SolidColorBrush x:Key="SbSegOnBg" Color="#173a26" />
+          <SolidColorBrush x:Key="SbSegOnBorder" Color="#4fd18b" />
+          <SolidColorBrush x:Key="SbSegOnText" Color="#8af0b5" />
+          <SolidColorBrush x:Key="SbAccentBg" Color="#173a26" />
+          <SolidColorBrush x:Key="SbAccentBorder" Color="#4fd18b" />
+          <SolidColorBrush x:Key="SbAccentText" Color="#9cf5c2" />
+          <SolidColorBrush x:Key="SbMuteBg" Color="#4a1f1c" />
+          <SolidColorBrush x:Key="SbMuteText" Color="#ff9d90" />
+          <SolidColorBrush x:Key="SbMuteBorder" Color="#d4574a" />
+          <SolidColorBrush x:Key="SbSoloBg" Color="#1d4a2d" />
+          <SolidColorBrush x:Key="SbSoloText" Color="#77f2a6" />
+          <SolidColorBrush x:Key="SbStripBg" Color="#2a2b2f" />
+          <SolidColorBrush x:Key="SbSourceBg" Color="#34312b" />
+          <SolidColorBrush x:Key="SbFaderTrack" Color="#141517" />
+          <SolidColorBrush x:Key="SbFaderCap" Color="#dcd6c8" />
+          <SolidColorBrush x:Key="SbFaderCapLine" Color="#3a3a3a" />
+          <SolidColorBrush x:Key="SbTick" Color="#6a6b70" />
+          <SolidColorBrush x:Key="SbLcdBg" Color="#0d0e0f" />
+          <SolidColorBrush x:Key="SbLcdBorder" Color="#050506" />
+          <SolidColorBrush x:Key="SbLcdText" Color="#5cf59a" />
+          <SolidColorBrush x:Key="SbLcdGhost" Color="#11261a" />
+          <SolidColorBrush x:Key="SbPopup" Color="#26272a" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="SbApp" Color="#c3c2bd" />
+          <SolidColorBrush x:Key="SbChassis" Color="#e3e2dd" />
+          <SolidColorBrush x:Key="SbChassisBorder" Color="#c6c4bd" />
+          <SolidColorBrush x:Key="SbGroup" Color="#f1f0ec" />
+          <SolidColorBrush x:Key="SbGroupBorder" Color="#cdcbc4" />
+          <SolidColorBrush x:Key="SbTab" Color="#d4d2cb" />
+          <SolidColorBrush x:Key="SbTabText" Color="#2a2a29" />
+          <SolidColorBrush x:Key="SbLabel" Color="#57554f" />
+          <SolidColorBrush x:Key="SbValue" Color="#1f1f1e" />
+          <SolidColorBrush x:Key="SbText" Color="#2b2b2a" />
+          <SolidColorBrush x:Key="SbMuted" Color="#7b7973" />
+          <Color x:Key="SbKnobHi">#6c6d72</Color>
+          <Color x:Key="SbKnobMid">#36373b</Color>
+          <Color x:Key="SbKnobLo">#1b1c1f</Color>
+          <SolidColorBrush x:Key="SbKnobRim" Color="#a8a69f" />
+          <SolidColorBrush x:Key="SbPointer" Color="#f2f0ea" />
+          <SolidColorBrush x:Key="SbArcTrack" Color="#cfcdc6" />
+          <SolidColorBrush x:Key="SbAccent" Color="#1f9a55" />
+          <SolidColorBrush x:Key="SbLedGreen" Color="#1f9e55" />
+          <SolidColorBrush x:Key="SbLedAmber" Color="#df9417" />
+          <SolidColorBrush x:Key="SbLedRed" Color="#dc3326" />
+          <SolidColorBrush x:Key="SbLedOff" Color="#cbc9c2" />
+          <SolidColorBrush x:Key="SbBtn" Color="#f8f7f3" />
+          <SolidColorBrush x:Key="SbBtnHover" Color="#ffffff" />
+          <SolidColorBrush x:Key="SbBtnBorder" Color="#b9b7b0" />
+          <SolidColorBrush x:Key="SbBtnText" Color="#2f2f2d" />
+          <SolidColorBrush x:Key="SbBtnOnBg" Color="#d8f2e1" />
+          <SolidColorBrush x:Key="SbBtnOnBorder" Color="#2fa860" />
+          <SolidColorBrush x:Key="SbBtnOnText" Color="#13693a" />
+          <SolidColorBrush x:Key="SbSegBg" Color="#ebeae5" />
+          <SolidColorBrush x:Key="SbSegOnBg" Color="#d6f1e0" />
+          <SolidColorBrush x:Key="SbSegOnBorder" Color="#1f9a55" />
+          <SolidColorBrush x:Key="SbSegOnText" Color="#13693a" />
+          <SolidColorBrush x:Key="SbAccentBg" Color="#d6f1e0" />
+          <SolidColorBrush x:Key="SbAccentBorder" Color="#1f9a55" />
+          <SolidColorBrush x:Key="SbAccentText" Color="#0f5c32" />
+          <SolidColorBrush x:Key="SbMuteBg" Color="#f9dcd8" />
+          <SolidColorBrush x:Key="SbMuteText" Color="#9a2a20" />
+          <SolidColorBrush x:Key="SbMuteBorder" Color="#d4574a" />
+          <SolidColorBrush x:Key="SbSoloBg" Color="#d8f2e1" />
+          <SolidColorBrush x:Key="SbSoloText" Color="#13693a" />
+          <SolidColorBrush x:Key="SbStripBg" Color="#e9e8e3" />
+          <SolidColorBrush x:Key="SbSourceBg" Color="#e4dfd2" />
+          <SolidColorBrush x:Key="SbFaderTrack" Color="#cfcdc6" />
+          <SolidColorBrush x:Key="SbFaderCap" Color="#2f3034" />
+          <SolidColorBrush x:Key="SbFaderCapLine" Color="#e6e3dc" />
+          <SolidColorBrush x:Key="SbTick" Color="#8f8d86" />
+          <SolidColorBrush x:Key="SbLcdBg" Color="#18150f" />
+          <SolidColorBrush x:Key="SbLcdBorder" Color="#8f8c84" />
+          <SolidColorBrush x:Key="SbLcdText" Color="#5cf59a" />
+          <SolidColorBrush x:Key="SbLcdGhost" Color="#11261a" />
+          <SolidColorBrush x:Key="SbPopup" Color="#eceae5" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <!-- Text -->
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="LetterSpacing" Value="0.8" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLabel}" />
+    </Style>
+    <Style Selector="TextBlock.tiny">
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="LetterSpacing" Value="0.6" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLabel}" />
+    </Style>
+    <Style Selector="TextBlock.wordmark">
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="LetterSpacing" Value="3" />
+      <Setter Property="Foreground" Value="{DynamicResource SbValue}" />
+    </Style>
+
+    <!-- Panels: the chassis, LCD boxes, and groups with a tab-shaped title -->
+    <Style Selector="Border.chassis">
+      <Setter Property="Background" Value="{DynamicResource SbChassis}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbChassisBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="BoxShadow" Value="0 2 6 0 #50000000" />
+    </Style>
+    <Style Selector="Border.lcd">
+      <Setter Property="Background" Value="{DynamicResource SbLcdBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbLcdBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="7,3" />
+    </Style>
+    <!-- The LCD's own text only: a descendant selector would also reach its tooltip's text. -->
+    <Style Selector="Border.lcd > TextBlock, TextBlock.lcd">
+      <Setter Property="FontFamily" Value="{StaticResource SbMonoFont}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <Style Selector="HeaderedContentControl.group">
+      <Setter Property="Padding" Value="14,28,14,12" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Panel>
+            <Border Background="{DynamicResource SbGroup}" BorderBrush="{DynamicResource SbGroupBorder}" BorderThickness="1"
+                    CornerRadius="10" Padding="{TemplateBinding Padding}">
+              <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" />
+            </Border>
+            <Border HorizontalAlignment="Center" VerticalAlignment="Top" Background="{DynamicResource SbTab}"
+                    CornerRadius="0,0,8,8" Padding="16,3,16,4" Margin="0,1,0,0">
+              <ContentPresenter Content="{TemplateBinding Header}" FontFamily="{StaticResource SbLabelFont}" FontWeight="DemiBold"
+                                FontSize="12" Foreground="{DynamicResource SbTabText}" />
+            </Border>
+          </Panel>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Buttons: plain, accent, small, icon-only; toggles with an LED; lit toggles (play, mute, solo) -->
+    <Style Selector="Button.sb, ToggleButton.led, ToggleButton.lit">
+      <Setter Property="Background" Value="{DynamicResource SbBtn}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbBtnBorder}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbBtnText}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Height" Value="26" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.sb">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}" BoxShadow="0 1 2 0 #40000000">
+            <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}" FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}"
+                              FontWeight="{TemplateBinding FontWeight}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.sb:pointerover, ToggleButton.led:pointerover, ToggleButton.lit:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SbBtnHover}" />
+    </Style>
+    <Style Selector="Button.sb:pressed, ToggleButton.led:pressed, ToggleButton.lit:pressed">
+      <Setter Property="RenderTransform" Value="translateY(1px)" />
+    </Style>
+    <Style Selector="Button.sb:disabled, ToggleButton.led:disabled, ToggleButton.lit:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+    <Style Selector="Button.sb.accent">
+      <Setter Property="Background" Value="{DynamicResource SbAccentBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbAccentBorder}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbAccentText}" />
+    </Style>
+    <Style Selector="Button.sb.small, ToggleButton.small">
+      <Setter Property="Height" Value="22" />
+      <Setter Property="Padding" Value="6,0" />
+      <Setter Property="FontSize" Value="10" />
+    </Style>
+    <Style Selector="Button.sb.icon">
+      <Setter Property="Width" Value="32" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ToggleButton.led">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}" BoxShadow="0 1 2 0 #40000000">
+            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+              <Border Name="Led" Width="8" Height="8" CornerRadius="1" Background="{DynamicResource SbLedOff}"
+                      BorderBrush="#30000000" BorderThickness="1" VerticalAlignment="Center" />
+              <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                                FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"
+                                VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ToggleButton.led:checked /template/ Border#Led">
+      <Setter Property="Background" Value="{DynamicResource SbLedGreen}" />
+      <Setter Property="BoxShadow" Value="0 0 5 0 #9946d27c" />
+    </Style>
+    <Style Selector="ToggleButton.lit">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}" BoxShadow="0 1 2 0 #40000000">
+            <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                              FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ToggleButton.lit:checked">
+      <Setter Property="Background" Value="{DynamicResource SbBtnOnBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbBtnOnBorder}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbBtnOnText}" />
+    </Style>
+    <Style Selector="ToggleButton.lit.mute:checked">
+      <Setter Property="Background" Value="{DynamicResource SbMuteBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbMuteBorder}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbMuteText}" />
+    </Style>
+
+    <!-- Segmented selector: a ListBox laid out as a row of joined buttons -->
+    <Style Selector="ListBox.seg">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbBtnBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="ClipToBounds" Value="True" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+      <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
+      <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate>
+          <StackPanel Orientation="Horizontal" />
+        </ItemsPanelTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem">
+      <Setter Property="Background" Value="{DynamicResource SbSegBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbBtnText}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbBtnBorder}" />
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Padding" Value="9,0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="Box" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="0,0,1,0" Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                              FontFamily="{TemplateBinding FontFamily}" FontSize="{TemplateBinding FontSize}" FontWeight="{TemplateBinding FontWeight}"
+                              VerticalAlignment="Center" HorizontalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:nth-last-child(1) /template/ Border#Box">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:pointerover">
+      <Setter Property="Background" Value="{DynamicResource SbBtnHover}" />
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:selected">
+      <Setter Property="Background" Value="{DynamicResource SbSegOnBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbSegOnText}" />
+    </Style>
+    <Style Selector="ListBox.seg ListBoxItem:selected /template/ Border#Box">
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbSegOnBorder}" />
+    </Style>
+    <Style Selector="ListBox.seg:disabled">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <!-- A button that looks like an LCD (a strip's instrument: opens the list) -->
+    <Style Selector="Button.lcd">
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Name="Box" Background="{DynamicResource SbLcdBg}" BorderBrush="{DynamicResource SbLcdBorder}" BorderThickness="1"
+                  CornerRadius="3" Padding="3,1">
+            <ContentPresenter Content="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="Button.lcd:pointerover /template/ Border#Box">
+      <Setter Property="BorderBrush" Value="{DynamicResource SbAccent}" />
+    </Style>
+
+    <!-- A list that looks like an LCD (a strip's instruments). It stays green on dark in both themes, so its
+         items keep the LCD colours; the light theme's own would show black text on a dark hover. -->
+    <Style Selector="ListBox.lcd">
+      <Setter Property="Background" Value="{DynamicResource SbLcdBg}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="FontFamily" Value="{StaticResource SbMonoFont}" />
+      <Setter Property="FontSize" Value="11" />
+    </Style>
+    <Style Selector="ListBox.lcd ListBoxItem /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+    </Style>
+    <Style Selector="ListBox.lcd ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#2e5cf59a" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+    </Style>
+    <Style Selector="ListBox.lcd ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBox.lcd ListBoxItem:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdBg}" />
+    </Style>
+    <Style Selector="ListBox.lcd ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#8af8b8" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdBg}" />
+    </Style>
+
+    <!-- A compact drop-down that looks like an LCD (presets) -->
+    <Style Selector="ComboBox.lcd">
+      <Setter Property="Background" Value="{DynamicResource SbLcdBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbLcdBorder}" />
+      <Setter Property="Foreground" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="FontFamily" Value="{StaticResource SbMonoFont}" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="MinHeight" Value="22" />
+      <Setter Property="Padding" Value="5,0,2,0" />
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="MaxDropDownHeight" Value="420" />
+      <Setter Property="PlaceholderForeground" Value="#4f8a65" />
+    </Style>
+    <Style Selector="ComboBox.lcd /template/ PathIcon#DropDownGlyph">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="ComboBox.lcd /template/ ContentControl#ContentPresenter">
+      <Setter Property="Margin" Value="0" />
+    </Style>
+    <Style Selector="ComboBox.lcd:pointerover /template/ Border#Background">
+      <Setter Property="Background" Value="{DynamicResource SbLcdBg}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbAccent}" />
+    </Style>
+
+    <!-- Custom controls take their colours from the palette -->
+    <Style Selector="c|Knob">
+      <Setter Property="AccentBrush" Value="{DynamicResource SbAccent}" />
+      <Setter Property="TrackBrush" Value="{DynamicResource SbArcTrack}" />
+      <Setter Property="RimBrush" Value="{DynamicResource SbKnobRim}" />
+      <Setter Property="PointerBrush" Value="{DynamicResource SbPointer}" />
+      <Setter Property="LabelBrush" Value="{DynamicResource SbLabel}" />
+      <Setter Property="ValueBrush" Value="{DynamicResource SbValue}" />
+      <Setter Property="FaceHighlight" Value="{DynamicResource SbKnobHi}" />
+      <Setter Property="FaceColor" Value="{DynamicResource SbKnobMid}" />
+      <Setter Property="FaceShadow" Value="{DynamicResource SbKnobLo}" />
+    </Style>
+    <Style Selector="c|LedDisplay">
+      <Setter Property="OnBrush" Value="{DynamicResource SbLcdText}" />
+      <Setter Property="GhostBrush" Value="{DynamicResource SbLcdGhost}" />
+      <Setter Property="BezelBrush" Value="{DynamicResource SbLcdBg}" />
+      <Setter Property="BezelBorderBrush" Value="{DynamicResource SbLcdBorder}" />
+    </Style>
+    <Style Selector="c|Fader">
+      <Setter Property="TrackBrush" Value="{DynamicResource SbFaderTrack}" />
+      <Setter Property="CapBrush" Value="{DynamicResource SbFaderCap}" />
+      <Setter Property="CapLineBrush" Value="{DynamicResource SbFaderCapLine}" />
+      <Setter Property="TickBrush" Value="{DynamicResource SbTick}" />
+    </Style>
+    <Style Selector="c|HorizontalSlider">
+      <Setter Property="AccentBrush" Value="{DynamicResource SbAccent}" />
+      <Setter Property="TrackBrush" Value="{DynamicResource SbFaderTrack}" />
+      <Setter Property="CapBrush" Value="{DynamicResource SbFaderCap}" />
+      <Setter Property="CapLineBrush" Value="{DynamicResource SbFaderCapLine}" />
+      <Setter Property="LabelBrush" Value="{DynamicResource SbLabel}" />
+      <Setter Property="ValueBrush" Value="{DynamicResource SbValue}" />
+    </Style>
+    <Style Selector="c|LevelMeter">
+      <Setter Property="GreenBrush" Value="{DynamicResource SbLedGreen}" />
+      <Setter Property="AmberBrush" Value="{DynamicResource SbLedAmber}" />
+      <Setter Property="RedBrush" Value="{DynamicResource SbLedRed}" />
+      <Setter Property="OffBrush" Value="{DynamicResource SbLedOff}" />
+    </Style>
+    <Style Selector="c|PitchRangeSlider">
+      <Setter Property="TrackBrush" Value="{DynamicResource SbFaderTrack}" />
+      <Setter Property="AccentBrush" Value="{DynamicResource SbAccent}" />
+      <Setter Property="CapBrush" Value="{DynamicResource SbFaderCap}" />
+      <Setter Property="TickBrush" Value="{DynamicResource SbLabel}" />
+    </Style>
+  </Application.Styles>
+</Application>

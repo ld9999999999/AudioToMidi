@@ -1,0 +1,586 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AudioToMidi.App.ViewModels"
+        xmlns:c="using:AudioToMidi.App.Controls"
+        x:Class="AudioToMidi.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="{Binding Title}"
+        Background="{DynamicResource SbApp}"
+        Width="1600" Height="1000" MinWidth="1200" MinHeight="760"
+        DragDrop.AllowDrop="True">
+
+  <Window.KeyBindings>
+    <KeyBinding Gesture="Space" Command="{Binding TogglePlayCommand}" />
+  </Window.KeyBindings>
+
+  <Window.Styles>
+    <Style Selector="Path.icon">
+      <Setter Property="Stretch" Value="Uniform" />
+      <Setter Property="StrokeLineCap" Value="Round" />
+      <Setter Property="StrokeJoin" Value="Round" />
+    </Style>
+    <Style Selector="Border.status">
+      <Setter Property="Background" Value="{DynamicResource SbLedGreen}" />
+      <Setter Property="BoxShadow" Value="0 0 5 0 #9946d27c" />
+    </Style>
+    <Style Selector="Border.status.busy">
+      <Setter Property="Background" Value="{DynamicResource SbLedAmber}" />
+      <Setter Property="BoxShadow" Value="0 0 5 0 #99f2b440" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontFamily" Value="{StaticResource SbLabelFont}" />
+      <Setter Property="FontWeight" Value="DemiBold" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="LetterSpacing" Value="1.6" />
+      <Setter Property="Foreground" Value="{DynamicResource SbTabText}" />
+    </Style>
+    <Style Selector="Border.rule">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource SbGroupBorder}" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+    </Style>
+    <Style Selector="Border.statusblock">
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Padding" Value="10,0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Background" Value="{DynamicResource SbGroup}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SbGroupBorder}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="BoxShadow" Value="0 1 4 0 #40000000" />
+    </Style>
+    <!-- Expand/restore toggle on the display, which stays dark in both themes -->
+    <Style Selector="ToggleButton.corner">
+      <Setter Property="Width" Value="26" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="Padding" Value="6,5" />
+      <Setter Property="Background" Value="#1c1e22" />
+      <Setter Property="BorderBrush" Value="#30333a" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Foreground" Value="#8b919a" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="ToggleButton.corner:pointerover">
+      <Setter Property="Background" Value="#26292e" />
+      <Setter Property="Foreground" Value="#d8dce2" />
+    </Style>
+    <Style Selector="ToggleButton.corner:checked">
+      <Setter Property="Foreground" Value="{DynamicResource SbAccent}" />
+    </Style>
+    <Style Selector="HyperlinkButton.link">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="Padding" Value="8,2" />
+      <Setter Property="Foreground" Value="{DynamicResource SbAccent}" />
+    </Style>
+    <Style Selector="HyperlinkButton.link:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Foreground" Value="{DynamicResource SbValue}" />
+    </Style>
+    <Style Selector="TextBox.field">
+      <Setter Property="FontFamily" Value="{StaticResource SbMonoFont}" />
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="MinHeight" Value="26" />
+      <Setter Property="Padding" Value="6,3" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="12">
+
+    <!-- Top bar: menu, file, status, presets, open and export -->
+    <Border Grid.Row="0" Classes="chassis" Height="46" Padding="10,0" Margin="0,0,0,8" IsVisible="{Binding !DisplayExpanded}">
+      <DockPanel VerticalAlignment="Center">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <TextBlock Classes="label" Text="PRESET" VerticalAlignment="Center" />
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <Button Classes="sb icon" Width="26" Command="{Binding PreviousPresetCommand}" ToolTip.Tip="Previous preset">
+              <Path Classes="icon" Width="10" Height="10" Data="M15,6 L9,12 L15,18" StrokeThickness="2.5" Stroke="{Binding $parent[Button].Foreground}" />
+            </Button>
+            <ComboBox Classes="lcd" Width="190" Height="26" ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}"
+                      PlaceholderText="NO PRESET" ToolTip.Tip="Saved sets of these settings. Name, save and delete them in the menu (≡)." />
+            <Button Classes="sb icon" Width="26" Command="{Binding NextPresetCommand}" ToolTip.Tip="Next preset">
+              <Path Classes="icon" Width="10" Height="10" Data="M9,6 L15,12 L9,18" StrokeThickness="2.5" Stroke="{Binding $parent[Button].Foreground}" />
+            </Button>
+            <Button Classes="sb" Content="SAVE" Command="{Binding SavePresetCommand}"
+                    ToolTip.Tip="Save the current settings into the chosen preset (a new name can be typed in the menu)" />
+          </StackPanel>
+          <Border Width="1" Height="26" Background="{DynamicResource SbChassisBorder}" Margin="4,0" />
+          <Button Classes="sb" Content="OPEN" Click="OnOpenClick" ToolTip.Tip="Open an audio or video file, or drop one on the display" />
+          <Button Classes="sb accent" Content="EXPORT MIDI" Click="OnExportClick" IsEnabled="{Binding HasNotes}"
+                  ToolTip.Tip="Every track as MIDI, with each instrument; drums on channel 10 when transcribed" />
+          <Button Classes="sb" Content="SHEET MUSIC" Click="OnExportScoreClick" IsEnabled="{Binding HasNotes}"
+                  ToolTip.Tip="MusicXML with chord symbols: opens in MuseScore (free), Dorico, Sibelius or Finale" />
+          <Button Classes="sb" Content="PROJECT" Click="OnSaveProjectClick" IsEnabled="{Binding HasNotes}"
+                  ToolTip.Tip="A folder (.a2m) with everything found: beats, key and chords, every part, the separated audio and the MIDI" />
+          <Button Classes="sb icon" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Light or dark">
+            <Path Classes="icon" Width="14" Height="14" StrokeThickness="2" Stroke="{Binding $parent[Button].Foreground}"
+                  Data="M20,14.5 A8,8 0 1 1 9.5,4 A6.5,6.5 0 0 0 20,14.5 Z" />
+          </Button>
+        </StackPanel>
+
+        <!-- Drawn above the presets and buttons, so a long status covers them cleanly -->
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center" ZIndex="1">
+          <Button Classes="sb icon" ToolTip.Tip="Menu: presets, playback sound, separation models, ffmpeg, appearance">
+            <Path Classes="icon" Width="14" Height="12" StrokeThickness="2" Stroke="{Binding $parent[Button].Foreground}" Data="M3,6 H21 M3,12 H21 M3,18 H21" />
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedLeft">
+                <!-- Scrolls when taller than the smallest window -->
+                <Border Background="{DynamicResource SbPopup}" CornerRadius="8" Width="410">
+                  <ScrollViewer MaxHeight="680" HorizontalScrollBarVisibility="Disabled">
+                  <StackPanel Spacing="10" Margin="14">
+                    <TextBlock Classes="section" Text="PRESETS" />
+                    <Border Classes="rule" />
+                    <ListBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}" Height="110"
+                             Background="{DynamicResource SbLcdBg}" Foreground="{DynamicResource SbLcdText}" FontFamily="{StaticResource SbMonoFont}" FontSize="12" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <TextBox Classes="field" Width="190" Text="{Binding PresetName}" PlaceholderText="Preset name" />
+                      <Button Classes="sb" Content="SAVE AS" Command="{Binding SavePresetCommand}" ToolTip.Tip="Save the current settings under this name" />
+                      <Button Classes="sb" Content="DELETE" Command="{Binding DeletePresetCommand}" ToolTip.Tip="Delete the chosen preset" />
+                    </StackPanel>
+
+                    <TextBlock Classes="section" Text="KEYBOARD SOUND" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <!-- The SoundFont's instruments when one is playing, else the built-in synth's sounds -->
+                    <ComboBox ItemsSource="{Binding KeyboardPrograms}" SelectedIndex="{Binding KeyboardProgram}" HorizontalAlignment="Stretch"
+                              IsVisible="{Binding HasSoundFont}" ToolTip.Tip="The SoundFont instrument the piano roll's keys play" />
+                    <ComboBox ItemsSource="{Binding PreviewSounds}" SelectedItem="{Binding SelectedPreviewSound}" HorizontalAlignment="Stretch"
+                              IsVisible="{Binding !HasSoundFont}" ToolTip.Tip="The built-in synth sound the piano roll's keys play (with SOUND FONT on, they play a SoundFont instrument)" />
+
+                    <TextBlock Classes="section" Text="SOUND FONT" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <TextBlock Classes="tiny" Text="{Binding SoundFontStatus}" TextWrapping="Wrap" />
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                      <TextBox Classes="field" Text="{Binding SoundFontPath}" PlaceholderText="Auto: the first in the SoundFonts folder"
+                               ToolTip.Tip="A General MIDI SoundFont (.sf2 or .sf3) to play the tracks with. Empty: the first one found" />
+                      <Button Grid.Column="1" Classes="sb" Content="…" Click="OnBrowseSoundFontClick" ToolTip.Tip="Pick a SoundFont (.sf2, .sf3), or the .zip it came in" />
+                      <Button Grid.Column="2" Classes="sb" Content="FOLDER" Click="OnOpenSoundFontFolderClick"
+                              ToolTip.Tip="Open the SoundFonts folder: SoundFonts put here are found by themselves" />
+                    </Grid>
+                    <TextBlock Classes="label" Text="FREE GENERAL MIDI SOUNDFONTS" />
+                    <ItemsControl ItemsSource="{Binding SoundFontLinks}" Margin="-8,-6,0,0">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SoundFontLink">
+                          <HyperlinkButton Classes="link" Content="{Binding Name}" NavigateUri="{Binding Page}" ToolTip.Tip="{Binding Description}" />
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock Classes="section" Text="SEPARATION MODELS" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <TextBlock Classes="tiny" Text="{Binding ModelStatus}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <Button Classes="sb" Content="DOWNLOAD MODEL" Command="{Binding DownloadModelCommand}" IsVisible="{Binding IsModelMissing}"
+                              IsEnabled="{Binding !IsDownloading}" ToolTip.Tip="HT-Demucs: code MIT, Meta's weights for personal and research use" />
+                      <Button Classes="sb" Content="DOWNLOAD BS-ROFORMER" Command="{Binding DownloadRoformerCommand}" IsVisible="{Binding CanDownloadRoformer}"
+                              IsEnabled="{Binding !IsDownloading}" ToolTip.Tip="353 MB. No licence: for personal experiments only" />
+                    </StackPanel>
+                    <TextBlock Classes="label" Text="DOWNLOAD FROM" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                      <TextBox Classes="field" Text="{Binding ModelSource}" PlaceholderText="The model's publisher"
+                               ToolTip.Tip="Empty: the publisher (Hugging Face). Or a URL or file path to the model file (.onnx), a model archive (.zip) or a folder holding the model" />
+                      <Button Grid.Column="1" Classes="sb" Content="…" Click="OnBrowseModelSourceClick" ToolTip.Tip="Pick a model file or archive" />
+                    </Grid>
+
+                    <TextBlock Classes="section" Text="FFMPEG" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                      <TextBox Classes="field" Text="{Binding FfmpegPath}" PlaceholderText="Auto-detect" />
+                      <Button Grid.Column="1" Classes="sb" Content="…" Click="OnBrowseFfmpegClick" />
+                    </Grid>
+                    <TextBlock Classes="tiny" Text="{Binding FfmpegStatus}" TextWrapping="Wrap" />
+
+                    <TextBlock Classes="section" Text="APPEARANCE" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <ListBox Classes="seg" ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" />
+
+                    <TextBlock Classes="section" Text="MORE" Margin="0,6,0,0" />
+                    <Border Classes="rule" />
+                    <Button Classes="sb" Content="SAVE MIX AS WAV…" Click="OnExportMixClick" IsEnabled="{Binding HasNotes}" HorizontalAlignment="Left"
+                            ToolTip.Tip="What Play plays (each track's instrument, the drums and the recording at their mixer levels) at the song's tempo, over the range if one is set" />
+                    <Button Classes="sb" Content="SAVE TRANSCRIBED AUDIO…" Click="OnExportAudioClick" IsEnabled="{Binding HasNotes}" HorizontalAlignment="Left"
+                            ToolTip.Tip="The audio after drum removal, as WAV: what the transcriber heard" />
+                    <Button Classes="sb" Content="SAVE CLIP AS MIDI…" Click="OnExportClipClick" IsEnabled="{Binding HasSelectedClip}" HorizontalAlignment="Left"
+                            ToolTip.Tip="The bar pattern last clicked in the pattern lane (the pattern button at the left of the display shows the lane), as a MIDI file of exactly its length, to loop" />
+                  </StackPanel>
+                  </ScrollViewer>
+                </Border>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+          <TextBlock Classes="wordmark" VerticalAlignment="Center">
+            <Run Text="AUDIO" /><Run Text="→" Foreground="{DynamicResource SbAccent}" /><Run Text="MIDI" />
+          </TextBlock>
+          <Border Classes="lcd" Width="270" VerticalAlignment="Center" ToolTip.Tip="{Binding SourcePath}">
+            <TextBlock Text="{Binding FileName}" />
+          </Border>
+          <Border Classes="statusblock">
+            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Border Classes="status" Classes.busy="{Binding IsBusy}" Width="8" Height="8" CornerRadius="1" BorderBrush="#30000000" BorderThickness="1" VerticalAlignment="Center" />
+              <TextBlock Classes="tiny" Text="{Binding Status}" MaxWidth="300" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                         ToolTip.Tip="{Binding Status}" />
+              <ProgressBar Width="80" MinWidth="80" Height="4" MinHeight="4" Value="{Binding Progress}" IsVisible="{Binding IsBusy}"
+                           Foreground="{DynamicResource SbAccent}" VerticalAlignment="Center" />
+              <Button Classes="sb small" Content="CANCEL" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Display: waveform, bars and chords, piano roll -->
+    <Border Grid.Row="1" Classes="chassis" Padding="8">
+      <Border Background="#101113" BorderBrush="Black" BorderThickness="1" CornerRadius="7" Padding="3" ClipToBounds="True">
+        <Grid>
+          <c:PianoRollView x:Name="Roll" Notes="{Binding Notes}" Waveform="{Binding Waveform}" Removed="{Binding RemovedAudio}"
+                           SampleRate="{Binding SampleRate}" Grid="{Binding BarGrid}" Chords="{Binding ChordLabels}" Drums="{Binding DrumNotes}"
+                           ColorByTrack="{Binding ColorByTrack}" Patterns="{Binding PatternLanes}"
+                           RangeStart="{Binding RangeStart}" RangeEnd="{Binding RangeEnd}"
+                           Playhead="{Binding Playhead}" SoundingKeys="{Binding SoundingKeys}" />
+          <TextBlock Text="DROP AN AUDIO OR VIDEO FILE HERE" IsVisible="{Binding SourcePath, Converter={x:Static ObjectConverters.IsNull}}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" LetterSpacing="2"
+                     FontFamily="{StaticResource SbLabelFont}" FontWeight="DemiBold" Foreground="#6b7280" />
+          <!-- In the empty corner above the keyboard -->
+          <ToggleButton Classes="corner" IsChecked="{Binding DisplayExpanded}" Margin="9,8,0,0"
+                        HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ToolTip.Tip>
+              <TextBlock Text="{Binding DisplayExpanded, Converter={x:Static c:Converters.ExpandTip}}" />
+            </ToolTip.Tip>
+            <Panel>
+              <Path Classes="icon" StrokeThickness="2" Stroke="{Binding $parent[ToggleButton].Foreground}" IsVisible="{Binding !DisplayExpanded}"
+                    Data="M4,9 V4 H9 M15,4 H20 V9 M20,15 V20 H15 M9,20 H4 V15" />
+              <Path Classes="icon" StrokeThickness="2" Stroke="{Binding $parent[ToggleButton].Foreground}" IsVisible="{Binding DisplayExpanded}"
+                    Data="M9,4 V9 H4 M15,4 V9 H20 M20,15 H15 V20 M4,15 H9 V20" />
+            </Panel>
+          </ToggleButton>
+          <ToggleButton Classes="corner" IsChecked="{Binding ShowPatterns}" Margin="9,36,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                        IsEnabled="{Binding HasNotes}"
+                        ToolTip.Tip="Bar patterns: a lane with a row per part that repeats, each bar lettered by the pattern it plays (A A B A). Click a bar to loop that pattern, right-click to save it as MIDI">
+            <Path Classes="icon" StrokeThickness="2" Stroke="{Binding $parent[ToggleButton].Foreground}" Data="M3,7 H10 V17 H3 Z M14,7 H21 V17 H14 Z" />
+          </ToggleButton>
+        </Grid>
+      </Border>
+    </Border>
+
+    <!-- Transport: play, readouts, speed and volume -->
+    <Border Grid.Row="2" Classes="chassis" Height="80" Padding="14,0" Margin="0,8,0,0">
+      <DockPanel VerticalAlignment="Center">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <c:HorizontalSlider Label="ZOOM" Width="110" Minimum="100" Maximum="400" DefaultValue="100" IsLogarithmic="True" Format="{}{0:0}%"
+                              Value="{Binding #Roll.Zoom}" Margin="0,0,6,0" VerticalAlignment="Center"
+                              ToolTip.Tip="Timeline length: 100% fits the whole file, 400% makes it four screens long. Ctrl/⌘ + scroll zooms around the pointer, and closer still (to two seconds across); double-click for 100%" />
+          <c:Knob Label="SPEED" Minimum="25" Maximum="200" DefaultValue="100" Step="1" DialSize="38" Value="{Binding PlaybackPercent}"
+                  Format="{}{0:0}%" ToolTip.Tip="Playback speed. Slow down to check notes; the song's tempo stays as detected" />
+          <c:Knob Label="MASTER" Minimum="0" Maximum="1" DefaultValue="0.6" DialSize="38" Value="{Binding PreviewVolume}"
+                  Format="{}{0:P0}" ToolTip.Tip="Volume of playback and the keyboard" />
+          <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+            <StackPanel Spacing="3">
+              <c:LevelMeter Width="8" Height="50" Segments="16" Level="{Binding MasterLevel}" />
+              <TextBlock Classes="tiny" Text="L" HorizontalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Spacing="3">
+              <c:LevelMeter Width="8" Height="50" Segments="16" Level="{Binding MasterLevel}" />
+              <TextBlock Classes="tiny" Text="R" HorizontalAlignment="Center" />
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Classes="sb icon" Width="36" Height="32" Command="{Binding RewindCommand}" ToolTip.Tip="Back to the start">
+              <Path Classes="icon" Width="12" Height="12" StrokeThickness="2.4" Stroke="{Binding $parent[Button].Foreground}"
+                    Fill="{Binding $parent[Button].Foreground}" Data="M6,5 V19 M18,6 L9,12 L18,18 Z" />
+            </Button>
+            <ToggleButton Classes="lit" Width="46" Height="32" IsChecked="{Binding IsPlaying, Mode=OneWay}" Command="{Binding TogglePlayCommand}"
+                          IsEnabled="{Binding HasNotes}" ToolTip.Tip="Play the notes through the mixer (Space)">
+              <Path Width="12" Height="12" Stretch="Uniform" Fill="{Binding $parent[ToggleButton].Foreground}" Data="M7,4.5 L20,12 L7,19.5 Z" />
+            </ToggleButton>
+            <Button Classes="sb icon" Width="36" Height="32" Command="{Binding StopCommand}" ToolTip.Tip="Stop">
+              <Path Width="10" Height="10" Stretch="Uniform" Fill="{Binding $parent[Button].Foreground}" Data="M5,5 H19 V19 H5 Z" />
+            </Button>
+          </StackPanel>
+          <ToggleButton Classes="led" Content="LOOP" IsChecked="{Binding Loop}" ToolTip.Tip="Repeat the start/stop range (or the whole piece)" />
+          <ToggleButton Classes="led" Content="METRONOME" IsChecked="{Binding Metronome}" ToolTip.Tip="Clicks on the beats, accented on beat 1" />
+          <ToggleButton Classes="led" Content="SOUND FONT" IsChecked="{Binding UseSoundFont}" ToolTip.Tip="{Binding SoundFontTip}" />
+          <Border Width="1" Height="48" Background="{DynamicResource SbChassisBorder}" />
+          <StackPanel Spacing="3">
+            <TextBlock Classes="tiny" Text="POSITION" />
+            <c:LedDisplay Text="{Binding PositionText}" DigitHeight="22" MinDigits="5" AlignRight="True" ToolTip.Tip="Bar and beat" />
+          </StackPanel>
+          <StackPanel Spacing="3">
+            <TextBlock Classes="tiny" Text="TIME" />
+            <c:LedDisplay Text="{Binding TimeText}" DigitHeight="22" MinDigits="7" AlignRight="True" />
+          </StackPanel>
+          <StackPanel Spacing="3">
+            <TextBlock Classes="tiny" Text="{Binding TempoLabel}" ToolTip.Tip="{Binding TempoInfo}" />
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <c:LedDisplay Text="{Binding TempoText}" DigitHeight="22" MinDigits="5" AlignRight="True" ToolTip.Tip="{Binding TempoInfo}" />
+              <Button Classes="sb small" Content="{Binding SlowerLabel}" Command="{Binding SlowerTempoCommand}" ToolTip.Tip="{Binding SlowerTip}" />
+              <Button Classes="sb small" Content="{Binding FasterLabel}" Command="{Binding FasterTempoCommand}" ToolTip.Tip="{Binding FasterTip}" />
+              <Button Classes="sb small" Content="↺" Command="{Binding ResetTempoCommand}" ToolTip.Tip="Back to the detected tempo" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel Spacing="3">
+            <TextBlock Classes="tiny" Text="KEY" />
+            <c:LedDisplay Text="{Binding KeyText}" DigitHeight="18" MinDigits="6" ToolTip.Tip="{Binding DetectedKeyInfo}" />
+          </StackPanel>
+          <StackPanel Spacing="3">
+            <TextBlock Classes="tiny" Text="CHORD" />
+            <c:LedDisplay Text="{Binding ChordText}" DigitHeight="18" MinDigits="5" ToolTip.Tip="The chord at the playhead" />
+          </StackPanel>
+          <Button Classes="sb small" Content="CLEAR RANGE" Command="{Binding ClearRangeCommand}" IsVisible="{Binding HasRange}"
+                  VerticalAlignment="Center" ToolTip.Tip="{Binding RangeInfo}" />
+        </StackPanel>
+      </DockPanel>
+    </Border>
+
+    <!-- Soundboard: settings panels, then the mixer -->
+    <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="0,8,0,0"
+                  IsVisible="{Binding !DisplayExpanded}">
+      <!-- Narrow enough that seven mixer strips fit a 1440-wide window without scrolling -->
+      <Grid ColumnDefinitions="848,*" ColumnSpacing="8" Height="456" MinWidth="1416">
+        <Grid Grid.Column="0" RowDefinitions="*,*" RowSpacing="8">
+          <Grid Grid.Row="0" ColumnDefinitions="536,*" ColumnSpacing="8">
+
+            <HeaderedContentControl Grid.Column="0" Classes="group" Header="NOTES">
+              <Grid ColumnDefinitions="*,Auto,Auto" VerticalAlignment="Center">
+                <StackPanel Grid.Column="0" Spacing="12" VerticalAlignment="Center">
+                  <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                    <c:Knob Width="76" Label="ONSET" Minimum="0.05" Maximum="0.95" DefaultValue="0.5" Step="0.01" Value="{Binding OnsetThreshold}"
+                            IsVisible="{Binding IsBasicPitch}" ToolTip.Tip="How sure a note's start must be. Raise to drop weak or ghost notes" />
+                    <c:Knob Width="76" Label="SUSTAIN" Minimum="0.05" Maximum="0.95" DefaultValue="0.3" Step="0.01" Value="{Binding FrameThreshold}"
+                            IsVisible="{Binding IsBasicPitch}" ToolTip.Tip="How long a note keeps sounding. Raise for shorter, cleaner notes" />
+                    <c:Knob Width="76" Label="SILENCE" Minimum="-70" Maximum="-10" DefaultValue="-45" Step="1" Value="{Binding SilenceThresholdDb}"
+                            Format="{}{0:0} dB" IsVisible="{Binding IsYin}" ToolTip.Tip="Quieter than this counts as silence" />
+                    <c:Knob Width="76" Label="MIN LENGTH" Minimum="20" Maximum="500" DefaultValue="120" Step="5" Value="{Binding MinNoteMs}"
+                            Format="{}{0:0} ms" ToolTip.Tip="Shorter notes are dropped" />
+                    <c:Knob Width="76" Label="MIN VELOCITY" Minimum="1" Maximum="120" DefaultValue="1" Step="1" Value="{Binding MinVelocity}"
+                            Format="{}{0:0}" ToolTip.Tip="Quieter notes are dropped" />
+                    <c:Knob Width="76" Label="JOIN GAP" Minimum="0" Maximum="200" DefaultValue="0" Step="5" Value="{Binding MergeGapMs}"
+                            Format="{}{0:0} ms" ToolTip.Tip="Repeats of a pitch closer than this become one note (drum hits can break notes up)" />
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                    <ToggleButton Classes="led" Content="SOFT ONSETS" IsChecked="{Binding MelodiaTrick}" IsVisible="{Binding IsBasicPitch}"
+                                  ToolTip.Tip="Also find notes without a clear attack (bowed, sung, swelling)" />
+                    <ToggleButton Classes="led" Content="PITCH BENDS" IsChecked="{Binding PitchBends}" IsVisible="{Binding IsBasicPitch}"
+                                  ToolTip.Tip="Follow each note's pitch for bends and slides, drawn on the note and written to MIDI where one note plays at a time on its track" />
+                  </StackPanel>
+                </StackPanel>
+                <Border Grid.Column="1" Width="1" Background="{DynamicResource SbGroupBorder}" Margin="10,0" />
+                <StackPanel Grid.Column="2" Spacing="4" HorizontalAlignment="Center">
+                  <TextBlock Classes="label" Text="RANGE" HorizontalAlignment="Center" />
+                  <c:PitchRangeSlider Height="134" Width="64" Low="{Binding LowestNote}" High="{Binding HighestNote}"
+                                      ToolTip.Tip="Only notes in this range are kept. Drag either handle; double-click for the full range" />
+                  <TextBlock HorizontalAlignment="Center" FontFamily="{StaticResource SbMonoFont}" FontSize="11" Foreground="{DynamicResource SbValue}">
+                    <Run Text="{Binding LowestNoteName}" /><Run Text=" – " /><Run Text="{Binding HighestNoteName}" />
+                  </TextBlock>
+                </StackPanel>
+              </Grid>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Grid.Column="1" Classes="group" Header="DRUMS">
+              <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalAlignment="Center">
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                  <ToggleButton Classes="led" Content="TRANSCRIBE" IsChecked="{Binding TranscribeDrums}"
+                                ToolTip.Tip="Kick, snare and hi-hats: played in the mixer and written to channel 10 of the MIDI" />
+                  <c:Knob Label="SENSITIVITY" Minimum="0" Maximum="1" DefaultValue="0.5" Step="0.01" Value="{Binding DrumSensitivity}"
+                          IsEnabled="{Binding TranscribeDrums}" ToolTip.Tip="Trades missed quiet hits against false ones" />
+                </StackPanel>
+                <Grid Grid.Column="1" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                  <StackPanel Spacing="2"><TextBlock Classes="tiny" Text="KICK" /><c:LedDisplay Text="{Binding KickCount}" DigitHeight="18" MinDigits="4" AlignRight="True" /></StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="2"><TextBlock Classes="tiny" Text="SNARE" /><c:LedDisplay Text="{Binding SnareCount}" DigitHeight="18" MinDigits="4" AlignRight="True" /></StackPanel>
+                  <StackPanel Grid.Row="1" Spacing="2"><TextBlock Classes="tiny" Text="HI-HAT" /><c:LedDisplay Text="{Binding HiHatCount}" DigitHeight="18" MinDigits="4" AlignRight="True" /></StackPanel>
+                  <StackPanel Grid.Row="1" Grid.Column="1" Spacing="2"><TextBlock Classes="tiny" Text="OPEN HAT" /><c:LedDisplay Text="{Binding OpenHatCount}" DigitHeight="18" MinDigits="4" AlignRight="True" /></StackPanel>
+                  <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6">
+                    <Border Width="8" Height="8" CornerRadius="1" Background="{DynamicResource SbLedGreen}" BorderBrush="#30000000" BorderThickness="1"
+                            BoxShadow="0 0 5 0 #9946d27c" VerticalAlignment="Center" />
+                    <TextBlock Classes="tiny" Text="{Binding DrumSourceText}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Grid>
+              </Grid>
+            </HeaderedContentControl>
+          </Grid>
+
+          <Grid Grid.Row="1" ColumnDefinitions="404,*" ColumnSpacing="8">
+            <HeaderedContentControl Grid.Column="0" Classes="group" Header="ANALYSIS">
+              <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="14" VerticalAlignment="Center">
+                <StackPanel Spacing="10">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="label" Text="ENGINE" />
+                    <ListBox Classes="seg" ItemsSource="{Binding Engines}" SelectedItem="{Binding SelectedEngine}" IsEnabled="{Binding CanChooseEngine}"
+                             ToolTip.Tip="Basic pitch finds chords; YIN follows one melody. Instruments mode always uses basic pitch" />
+                  </StackPanel>
+                  <StackPanel Spacing="4" IsVisible="{Binding IsInstrumentMode}">
+                    <TextBlock Classes="label" Text="STEMS" />
+                    <ListBox Classes="seg" ItemsSource="{Binding StemOptions}" SelectedItem="{Binding SelectedStems}"
+                             ToolTip.Tip="6 stems adds Guitar and Piano tracks; orchestral instruments stay in Other" />
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsInstrumentMode}">
+                    <ToggleButton Classes="led" Content="ROFORMER" IsChecked="{Binding PreferRoformer}" IsVisible="{Binding IsSixStems}"
+                                  ToolTip.Tip="Use BS-RoFormer when installed: separates better than HT-Demucs. Its weights have no licence: personal experiments only" />
+                    <ToggleButton Classes="led" Content="GPU" IsChecked="{Binding UseGpu}" IsVisible="{Binding CanUseGpu}"
+                                  ToolTip.Tip="Run BS-RoFormer on the GPU: about four times faster, same stems" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="8" HorizontalAlignment="Center">
+                  <ToggleButton Classes="led" Content="DRUM REMOVAL" IsChecked="{Binding RemoveDrums}"
+                                ToolTip.Tip="Remove drums before transcribing (orange in the waveform is what was removed)" />
+                  <c:Knob Label="STRENGTH" Minimum="1" Maximum="4" DefaultValue="2" Step="0.1" Value="{Binding SeparationStrength}" Format="{}{0:0.0}"
+                          IsEnabled="{Binding RemoveDrums}" ToolTip.Tip="Higher removes more percussion but can soften note attacks" />
+                </StackPanel>
+                <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Top" Margin="0,4,0,0">
+                  <TextBlock Classes="tiny" Text="MODEL" />
+                  <Border Classes="lcd" Padding="5,3" ToolTip.Tip="{Binding ModelStatus}"><TextBlock Text="{Binding ModelShort}" FontSize="10" TextWrapping="Wrap" /></Border>
+                  <Button Classes="sb small" Content="DOWNLOAD" Command="{Binding DownloadModelCommand}" IsVisible="{Binding IsModelMissing}"
+                          IsEnabled="{Binding !IsDownloading}" HorizontalAlignment="Left" ToolTip.Tip="{Binding ModelStatus}" />
+                </StackPanel>
+              </Grid>
+            </HeaderedContentControl>
+
+            <HeaderedContentControl Grid.Column="1" Classes="group" Header="BARS &amp; SCORE">
+              <Grid ColumnDefinitions="Auto,Auto,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="10" ColumnSpacing="12" VerticalAlignment="Center">
+                <StackPanel Grid.ColumnSpan="3" Spacing="4">
+                  <TextBlock Classes="label" Text="QUANTIZE" />
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ListBox Classes="seg" ItemsSource="{Binding QuantizeOptions}" SelectedItem="{Binding SelectedQuantize}"
+                             ToolTip.Tip="Snap notes to the beat grid; also sets the shortest note value in sheet music (T = triplets)" />
+                    <ToggleButton Classes="led" Content="{Binding SwingText}" IsChecked="{Binding KeepSwing}" IsEnabled="{Binding HasSwing}"
+                                  ToolTip.Tip="{Binding SwingTip}" ToolTip.ShowOnDisabled="True" VerticalAlignment="Center" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Spacing="4">
+                  <TextBlock Classes="label" Text="{Binding TimeSignatureLabel}" />
+                  <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{Binding MeterInfo}">
+                    <Button Classes="sb small" Content="◀" Command="{Binding PreviousTimeSignatureCommand}" ToolTip.Tip="Fewer beats, or back to automatic" />
+                    <c:LedDisplay Text="{Binding TimeSignatureText}" DigitHeight="15" MinDigits="4" />
+                    <Button Classes="sb small" Content="▶" Command="{Binding NextTimeSignatureCommand}" ToolTip.Tip="More beats" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="1" Spacing="4">
+                  <TextBlock Classes="label" Text="BAR LINES" />
+                  <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{Binding BarInfo}">
+                    <Button Classes="sb small" Content="◀" Command="{Binding ShiftBarsLeftCommand}" ToolTip.Tip="Bar lines one beat earlier" />
+                    <c:LedDisplay Text="{Binding DownbeatText}" DigitHeight="15" MinDigits="6" />
+                    <Button Classes="sb small" Content="▶" Command="{Binding ShiftBarsRightCommand}" ToolTip.Tip="Bar lines one beat later" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="2" Spacing="4">
+                  <TextBlock Classes="label" Text="KEY SIGNATURE" />
+                  <StackPanel Orientation="Horizontal" Spacing="4" ToolTip.Tip="{Binding DetectedKeyInfo}">
+                    <Button Classes="sb small" Content="◀" Command="{Binding PreviousKeyCommand}" ToolTip.Tip="Flatter key, or back to automatic" />
+                    <c:LedDisplay Text="{Binding KeyChoiceText}" DigitHeight="15" MinDigits="6" />
+                    <Button Classes="sb small" Content="▶" Command="{Binding NextKeyCommand}" ToolTip.Tip="Sharper key" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="4">
+                  <TextBlock Classes="label" Text="STAVES" />
+                  <ListBox Classes="seg" ItemsSource="{Binding StaffOptions}" SelectedItem="{Binding SelectedStaves}"
+                           ToolTip.Tip="Staves for sheet music. Notes that start and end together stay on one staff" />
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="2" Spacing="6" VerticalAlignment="Bottom">
+                  <ToggleButton Classes="led" Content="CHORDS" IsChecked="{Binding ShowChords}"
+                                ToolTip.Tip="Chord symbols above the piano roll and in sheet music, and a track of held chords in MIDI" />
+                  <ToggleButton Classes="led" Content="ALIGN MIDI" IsChecked="{Binding AlignMidiToBars}"
+                                ToolTip.Tip="MIDI starts at bar 1 with a tempo map following the beats. Off: notes keep their times in the audio" />
+                </StackPanel>
+              </Grid>
+            </HeaderedContentControl>
+          </Grid>
+        </Grid>
+
+        <HeaderedContentControl Grid.Column="1" Classes="group" Header="MIXER" Padding="12,30,12,10">
+          <DockPanel>
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+              <ToggleButton DockPanel.Dock="Right" Classes="led" Content="AUTO INSTRUMENTS" IsChecked="{Binding AutoInstruments}" VerticalAlignment="Center"
+                            ToolTip.Tip="Listen to each track and pick the closest General MIDI instrument. Your own choices are kept" />
+              <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <ListBox Classes="seg" ItemsSource="{Binding TrackModes}" SelectedItem="{Binding SelectedTrackMode}"
+                         ToolTip.Tip="One track; bass and keys split by pitch; or each instrument separated (needs a separation model)" />
+                <StackPanel Orientation="Horizontal" Spacing="4" IsVisible="{Binding IsRegisterSplit}" ToolTip.Tip="Notes below this go to the bass track">
+                  <TextBlock Classes="tiny" Text="SPLIT" VerticalAlignment="Center" />
+                  <NumericUpDown Value="{Binding SplitNote}" Minimum="24" Maximum="72" Increment="1" FormatString="0" Width="96" Height="26" />
+                  <TextBlock Classes="label" Text="{Binding SplitNoteName}" VerticalAlignment="Center" />
+                </StackPanel>
+              </StackPanel>
+            </DockPanel>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+            <ItemsControl ItemsSource="{Binding MixerStrips}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <c:SpreadPanel ItemMinWidth="72" ItemMaxWidth="96" Spacing="5" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:MixerStrip">
+                  <Border Background="{DynamicResource SbStripBg}" BorderBrush="{DynamicResource SbGroupBorder}" BorderThickness="1"
+                          CornerRadius="8" Padding="0,8">
+                    <StackPanel Spacing="6">
+                      <Border Height="3" CornerRadius="2" Background="{Binding ColorBrush}" Margin="9,0" />
+                      <TextBlock Classes="tiny" Text="{Binding Caption}" HorizontalAlignment="Center" Foreground="{DynamicResource SbValue}" />
+                      <ContentControl Content="{Binding}" Margin="4,0" HorizontalContentAlignment="Stretch">
+                        <ContentControl.DataTemplates>
+                          <DataTemplate x:DataType="vm:TrackRow">
+                            <Button Classes="lcd" HorizontalAlignment="Stretch" Height="30" ToolTip.Tip="{Binding Detected}">
+                              <TextBlock Text="{Binding ProgramName}" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" MaxLines="2"
+                                         LineHeight="11" TextAlignment="Center" FontFamily="{StaticResource SbLabelFont}" FontWeight="DemiBold" FontSize="9.5" />
+                              <Button.Flyout>
+                                <Flyout Placement="BottomEdgeAlignedLeft">
+                                  <ListBox Classes="lcd" ItemsSource="{Binding Programs}" SelectedIndex="{Binding Program}" Width="250" Height="380" />
+                                </Flyout>
+                              </Button.Flyout>
+                            </Button>
+                          </DataTemplate>
+                          <DataTemplate x:DataType="vm:MixerStrip">
+                            <Border Classes="lcd" Height="30" Padding="4,0">
+                              <TextBlock Text="{Binding FixedInstrument}" FontFamily="{StaticResource SbLabelFont}" FontWeight="DemiBold" FontSize="10"
+                                         VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            </Border>
+                          </DataTemplate>
+                        </ContentControl.DataTemplates>
+                      </ContentControl>
+                      <c:Knob Label="PAN" DialSize="30" ShowValue="False" IsBipolar="True" Minimum="0" Maximum="1" DefaultValue="0.5" Step="0.02"
+                              Value="{Binding Pan}" HorizontalAlignment="Center" ToolTip.Tip="Left to right; double-click to centre" />
+                      <StackPanel Orientation="Horizontal" Spacing="2" HorizontalAlignment="Center">
+                        <c:Fader Height="128" Width="46" Value="{Binding Volume}" ToolTip.Tip="Level; double-click for 0 dB" />
+                        <c:LevelMeter Width="6" Height="120" Margin="0,4,0,0" Level="{Binding Level}" />
+                      </StackPanel>
+                      <Border Classes="lcd" Padding="4,1" Margin="7,0">
+                        <TextBlock Text="{Binding VolumeText}" HorizontalAlignment="Center" />
+                      </Border>
+                      <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Center">
+                        <ToggleButton Classes="lit mute small" Width="27" Height="20" Content="M" IsChecked="{Binding Mute}" ToolTip.Tip="Mute" />
+                        <ToggleButton Classes="lit small" Width="27" Height="20" Content="S" IsChecked="{Binding Solo}" ToolTip.Tip="Solo" />
+                      </StackPanel>
+                      <ContentControl Content="{Binding}" HorizontalAlignment="Center" Height="20">
+                        <ContentControl.DataTemplates>
+                          <DataTemplate x:DataType="vm:TrackRow">
+                            <ToggleButton Classes="led small" Content="LINES" IsChecked="{Binding Split}" IsVisible="{Binding CanSplit}" Height="20"
+                                          ToolTip.Tip="Split this track into its top line, its lowest line and the notes between" />
+                          </DataTemplate>
+                          <DataTemplate x:DataType="vm:MixerStrip">
+                            <Panel />
+                          </DataTemplate>
+                        </ContentControl.DataTemplates>
+                      </ContentControl>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            </ScrollViewer>
+          </DockPanel>
+        </HeaderedContentControl>
+      </Grid>
+    </ScrollViewer>
+  </Grid>
+</Window>
